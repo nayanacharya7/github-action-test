@@ -18,7 +18,7 @@ public class PracticeApplication {
 	}
     @GetMapping("/test")
     public String test(){
-        return "inserting";
+        return "inserting new values";
     }
 
 }
