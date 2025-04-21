@@ -5,8 +5,10 @@ pipeline {
     DOCKER_IMAGE_NAME = 'myapp'
     DOCKER_REGISTRY = 'docker.io/nayan1103'
     K8S_NAMESPACE = 'default'
-    DOCKER_USERNAME = credentials('dockerhub-creds')
-    DOCKER_PASSWORD = credentials('dockerhub-creds')
+    DOCKER_CREDS = credentials('dockerhub-creds') // Use ID from Jenkins
+
+    DOCKER_USERNAME = "${DOCKER_CREDS_USR}"
+    DOCKER_PASSWORD = "${DOCKER_CREDS_PSW}"
 }
 
     stages {
