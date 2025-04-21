@@ -2,12 +2,12 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE_NAME = 'myapp'
-        DOCKER_REGISTRY = 'docker.io/nayan1103'
-        K8S_NAMESPACE = 'default'
-        DOCKER_USERNAME = credentials('nayan1103')  // Jenkins credentials ID for Docker username
-        DOCKER_PASSWORD = credentials('Gopala@1980')  // Jenkins credentials ID for Docker password
-    }
+    DOCKER_IMAGE_NAME = 'myapp'
+    DOCKER_REGISTRY = 'docker.io/nayan1103'
+    K8S_NAMESPACE = 'default'
+    DOCKER_USERNAME = credentials('dockerhub-creds')
+    DOCKER_PASSWORD = credentials('dockerhub-creds')
+}
 
     stages {
         stage('Checkout') {
