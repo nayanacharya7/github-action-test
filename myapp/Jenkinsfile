@@ -6,6 +6,10 @@ pipeline {
         DOCKER_REGISTRY = 'docker.io/nayan1103'
         K8S_NAMESPACE = 'default'
     }
+     docker {
+        image 'maven:3.8.6-openjdk-11'
+        args '-v /root/.m2'
+    }
 
     stages {
         stage('Checkout') {
