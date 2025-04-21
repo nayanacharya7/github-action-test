@@ -1,19 +1,13 @@
 pipeline {
-    agent {
-        docker {
-            image 'maven:3.9.5-eclipse-temurin-17' // Includes Maven + Java 17
-            args '-v /var/run/docker.sock:/var/run/docker.sock' // Needed for Docker-in-Docker
-        }
-    }
+    agent any
 
     environment {
         DOCKER_IMAGE_NAME = 'myapp'
         DOCKER_REGISTRY = 'docker.io/nayan1103'
         K8S_NAMESPACE = 'default'
 
-        // Jenkins credentials IDs
-        DOCKER_USERNAME = credentials('docker-username')  // ID should match Jenkins credential ID
-        DOCKER_PASSWORD = credentials('docker-password')  // ID should match Jenkins credential ID
+        DOCKER_USERNAME = credentials('docker-username')
+        DOCKER_PASSWORD = credentials('docker-password')
     }
 
     stages {
@@ -31,32 +25,26 @@ pipeline {
 
         stage('Docker Build') {
             steps {
-                script {
-                    sh 'docker build -t ${DOCKER_REGISTRY}/${DOCKER_IMAGE_NAME}:${BUILD_ID} .'
-                }
+                sh 'docker build -t ${DOCKER_REGISTRY}/${DOCKER_IMAGE_NAME}:${BUILD_ID} .'
             }
         }
 
         stage('Push to Docker Registry') {
             steps {
-                script {
-                    sh """
-                    echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
-                    docker push ${DOCKER_REGISTRY}/${DOCKER_IMAGE_NAME}:${BUILD_ID}
-                    """
-                }
+                sh """
+                echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
+                docker push ${DOCKER_REGISTRY}/${DOCKER_IMAGE_NAME}:${BUILD_ID}
+                """
             }
         }
 
         stage('Deploy to Kubernetes') {
             steps {
-                script {
-                    sh """
-                    kubectl config use-context docker-desktop
-                    kubectl set image deployment/your-deployment-name ${DOCKER_IMAGE_NAME}=${DOCKER_REGISTRY}/${DOCKER_IMAGE_NAME}:${BUILD_ID} -n ${K8S_NAMESPACE}
-                    kubectl rollout status deployment/your-deployment-name -n ${K8S_NAMESPACE}
-                    """
-                }
+                sh """
+                kubectl config use-context docker-desktop
+                kubectl set image deployment/your-deployment-name ${DOCKER_IMAGE_NAME}=${DOCKER_REGISTRY}/${DOCKER_IMAGE_NAME}:${BUILD_ID} -n ${K8S_NAMESPACE}
+                kubectl rollout status deployment/your-deployment-name -n ${K8S_NAMESPACE}
+                """
             }
         }
     }
