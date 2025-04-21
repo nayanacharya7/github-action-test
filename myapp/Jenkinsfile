@@ -5,9 +5,6 @@ pipeline {
         DOCKER_IMAGE_NAME = 'myapp'
         DOCKER_REGISTRY = 'docker.io/nayan1103'
         K8S_NAMESPACE = 'default'
-
-        DOCKER_USERNAME = credentials('docker-username')
-        DOCKER_PASSWORD = credentials('docker-password')
     }
 
     stages {
@@ -17,7 +14,7 @@ pipeline {
             }
         }
 
-        stage('Build with Maven') {
+        stage('Build') {
             steps {
                 sh 'mvn clean install'
             }
@@ -29,12 +26,14 @@ pipeline {
             }
         }
 
-        stage('Push to Docker Registry') {
+        stage('Push to Docker Hub') {
             steps {
-                sh """
-                echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
-                docker push ${DOCKER_REGISTRY}/${DOCKER_IMAGE_NAME}:${BUILD_ID}
-                """
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    sh '''
+                    echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                    docker push ${DOCKER_REGISTRY}/${DOCKER_IMAGE_NAME}:${BUILD_ID}
+                    '''
+                }
             }
         }
 
