@@ -6,7 +6,7 @@ pipeline {
         DOCKER_REGISTRY = 'docker.io/nayan1103'
         K8S_NAMESPACE = 'default'
     }
-     docker {
+    docker {
         image 'maven:3.8.6-openjdk-11'
         args '-v /root/.m2'
     }
@@ -20,7 +20,12 @@ pipeline {
 
         stage('Build') {
             steps {
-                sh 'mvn clean install'
+                script {
+                    docker.image('maven:3.8.6-openjdk-11').inside {
+                        // Your Maven build command
+                        sh 'mvn clean install'
+                    }
+                }
             }
         }
 
